@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ESP32-C3 File Manager</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #eee;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+    }
+    .card {
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,.4);
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    input[type=file] {
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    input[type=submit] {
+      width: 100%;
+      padding: 12px;
+      border: 0;
+      border-radius: 7px;
+      background: #03dac6;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    ul {
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+    li {
+      background: #2b2b2b;
+      padding: 12px;
+      margin-bottom: 6px;
+      border-radius: 7px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .fname {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 70%;
+    }
+    .delete {
+      background: #cf6679;
+      color: white;
+      padding: 6px 10px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .info {
+      text-align: center;
+      color: #aaa;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>ESP32-C3</h1>
+
+    <!-- Upload Card -->
+    <div class="card">
+      <h2>File Upload</h2>
+      <form id="uploadForm">
+        <input type="file" id="fileInput" name="f" required>
+        <input type="submit" value="UPLOAD FILE">
+      </form>
+    </div>
+
+    <!-- Files Card -->
+    <div class="card">
+      <h2>Files</h2>
+      <ul id="fileList"></ul>
+    </div>
+
+    <!-- Info Footer -->
+    <div class="info">
+      ESP32-C3 File Manager<br>
+      IP: 192.168.4.1
+    </div>
+  </div>
+
+  <script>
+    // In-memory dummy file state
+    let files = [
+      "/cheat_sheet.txt",
+      "/notes.txt",
+      "/formula_list.txt"
+    ];
+
+    const fileListEl = document.getElementById('fileList');
+    const uploadForm = document.getElementById('uploadForm');
+    const fileInput = document.getElementById('fileInput');
+
+    function renderFiles() {
+      fileListEl.innerHTML = '';
+
+      if (files.length === 0) {
+        fileListEl.innerHTML = '<li>No files found</li>';
+        return;
+      }
+
+      files.forEach((file, index) => {
+        const li = document.createElement('li');
+
+        const span = document.createElement('span');
+        span.className = 'fname';
+        span.textContent = file;
+
+        const delBtn = document.createElement('a');
+        delBtn.className = 'delete';
+        delBtn.textContent = 'DELETE';
+        delBtn.href = '#';
+        delBtn.onclick = (e) => {
+          e.preventDefault();
+          if (confirm('Delete this file?')) {
+            deleteFile(index);
+          }
+        };
+
+        li.appendChild(span);
+        li.appendChild(delBtn);
+        fileListEl.appendChild(li);
+      });
+    }
+
+    function deleteFile(index) {
+      files.splice(index, 1);
+      renderFiles();
+    }
+
+    uploadForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (fileInput.files.length > 0) {
+        const uploadedName = '/' + fileInput.files[0].name;
+        files.push(uploadedName);
+        fileInput.value = '';
+        renderFiles();
+      }
+    });
+
+    // Initial render
+    renderFiles();
+  </script>
+</body>
+</html>
